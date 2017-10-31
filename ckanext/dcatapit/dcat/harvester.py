@@ -6,7 +6,7 @@ from ckanext.dcat.interfaces import IDCATRDFHarvester
 
 from ckanext.dcatapit.dcat.profiles import LOCALISED_DICT_NAME_BASE, LOCALISED_DICT_NAME_RESOURCES
 import ckanext.dcatapit.interfaces as interfaces
-from ckanext.dcatapit.mapping import map_nonconformant_themes, map_nonconformant_groups
+from ckanext.dcatapit.mapping import map_nonconformant_themes
 
 log = logging.getLogger(__name__)
 

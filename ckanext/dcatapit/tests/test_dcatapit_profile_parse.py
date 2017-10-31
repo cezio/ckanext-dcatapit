@@ -24,8 +24,6 @@ from ckanext.dcat.processors import RDFParser
 from ckanext.dcatapit.dcat.profiles import (DCATAPIT)
 from ckanext.dcatapit.mapping import DCATAPIT_THEMES_MAP, map_nonconformant_themes
 
-from ckanext.dcatapit.dcat.harvester import map_nonconformant_groups
-from ckanext.dcatapit.harvesters.ckanharvester import CKANMappingHarvester
 from ckanext.harvest.model import HarvestObject
 
 
@@ -150,78 +148,6 @@ class TestDCATAPITProfileParsing(BaseParseTest):
 
         package = self._make_package('mapped', themes=['non-mappable','agriculture', 'agricoltura-e-allevamento'])
         eq_(package['theme'], '{non-mappable,agricoltura-pesca-silvicoltura-e-prodotti-alimentari}')
-
-
-    def test_groups_to_themes_mapping(self):
-        config[DCATAPIT_THEMES_MAP] = os.path.join(os.path.dirname(__file__), 
-                                                   '..', 
-                                                   '..', 
-                                                   '..', 
-                                                   'examples', 
-                                                   'themes_mapping.json')
-
-        url = 'http://some.test.harvest.url'
-
-        groups_non_mappable = [{'name': 'non-mappable', 'display_name': 'non-mappable'}], []
-        groups_mappable = [{'name': 'agriculture', 'display_name': 'agricoltura-e-allevamento'}],\
-                           [{'key': 'theme', 'value': 'Agricoltura, pesca, silvicoltura e prodotti alimentari'}]
-
-
-        harvest_obj = self._make_harvest_object(url, groups_non_mappable[0])
-
-        harvester = CKANMappingHarvester()
-
-        # clean, no mapping
-        harvester.import_stage(harvest_obj)
-        hdata = json.loads(harvest_obj.content)
-        eq_([t for t in hdata.get('extras', []) if t['key'] == 'theme'], [])
-
-    
-        # test mapping
-        hdata = json.loads(harvest_obj.content)
-        hdata['groups'] = groups_mappable[0]
-        harvest_obj.content = json.dumps(hdata)
-
-        harvester.import_stage(harvest_obj)
-        hdata = json.loads(harvest_obj.content)
-        eq_([t for t in hdata.get('extras', []) if t['key'] == 'theme'], groups_mappable[1])
-
-
-
-    def _make_harvest_object(self, mock_url, groups):
-        source_dict = {
-            'title': 'Test RDF DCAT Source',
-            'name': 'test-rdf-dcat-source',
-            'url': mock_url,
-            'source_type': 'dcat_rdf',
-        }
-        default_ctx = {'defer_commit': True}
-        harvest_source = helpers.call_action('harvest_source_create',
-                                       default_ctx, **source_dict)
-
-        Session.flush()
-        Session.revision = repo.new_revision()
-        harvest_job = helpers.call_action('harvest_job_create',
-                                    default_ctx,
-                                    source_id=harvest_source['id'],
-                                    )
-
-        hdata = {'groups': groups}
-        Session.flush()
-        Session.revision = repo.new_revision()
-
-        harvest_object = helpers.call_action('harvest_object_create',
-                                    default_ctx,
-                                    job_id=harvest_job['id'],
-                                    )
-        
-
-        Session.flush()
-        Session.revision = repo.new_revision()
-
-        hobj = HarvestObject.get(harvest_object['id'])
-        hobj.content = json.dumps(hdata)
-        return hobj
 
 
     def _make_package(self, name, themes=[]):

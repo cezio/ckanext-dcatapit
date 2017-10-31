@@ -12,8 +12,7 @@ import ckanext.dcatapit.validators as validators
 import ckanext.dcatapit.schema as dcatapit_schema
 import ckanext.dcatapit.helpers as helpers
 import ckanext.dcatapit.interfaces as interfaces
-from ckanext.dcatapit.dcat.harvester import (map_nonconformant_themes,
-    map_nonconformant_groups)
+from ckanext.dcatapit.dcat.harvester import map_nonconformant_themes
 
 from routes.mapper import SubMapper, Mapper as _Mapper
 

@@ -135,36 +135,3 @@ def map_nonconformant_themes(context, dataset_dict):
     schema = context.pop('schema', None)
     _save_theme_mapping(context, dataset_dict, new_themes)
     context['schema'] = schema
-
-def map_nonconformant_groups(harvest_object):
-    """
-    Adds themes to fetched data
-    """
-    themes_data = _load_mapping_data()
-    if not themes_data:
-        return
-
-    harvester = get_harvester(harvest_object.source.type)
-    try:
-        user_name = harvester._get_user_name()
-    except AttributeError:
-        # really bad default
-        user_name = 'harvester'
-
-    data = json.loads(harvest_object.content)
-    _groups = data.get('groups')
-    if not _groups:
-        return
-    
-    groups = [g['name'] for g in _groups]
-    groups.extend([g['display_name'] for g in _groups])
-
-    new_themes = _get_new_themes(groups, themes_data, add_existing=False)
-    extra = data.get('extras') or []
-    for t in new_themes:
-        tdata = {'key': 'theme', 'value': t}
-        #if extra and not tdata in extra:
-        extra.append(tdata)
-    data['extras'] = extra
-    harvest_object.content = json.dumps(data)
-    harvest_object.save()
