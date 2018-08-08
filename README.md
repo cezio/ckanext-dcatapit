@@ -141,7 +141,7 @@ If you want to manage localized fields, the ckanext-dcatapit extension requires 
         <field name="dcat_theme" type="string" indexed="true" stored="false" multiValued="true"/>
         <field name="dcat_subtheme" type="string" indexed="true" stored="false" multiValued="true"/>
         <dynamicField name="dcat_subtheme_*" type="string" indexed="true" stored="false" multiValued="true"/>
-        <dynamicField name="organization_region_*" type="string" indexed="true" stored="false" multiValued="false"/>
+        <dynamicField name="organization_region_*" type="string" indexed="true" stored="false" multiValued="true"/>
         <dynamicField name="resource_license_*" type="string" indexed="true" stored="false" multiValued="true"/>
         <field name="resource_license" type="string" indexed="true" stored="false" multiValued="true"/>
         
@@ -176,6 +176,13 @@ If you want to manage localized fields, the ckanext-dcatapit extension requires 
  17. DCATAPIT license tree. Download [license mapping file](https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/VocabolariControllati/licences/licences.rdf). Alternatively you can use ``examples/licenses.rdf``, but mind that it may be outdated. Import `license.rdf` it with command:
 
          paster --plugin=ckanext-dcatapit vocabulary load --filename path/to/license.rdf --name licenses --config=/etc/ckan/default/production.ini
+
+
+### Dataset reindexing after Organization change
+
+Due to use of Organization's *region* field in dataset search facet, the catalogue should be reindexed in Solr if a *region* field value is changed for an organization (this is only needed if the `dcatapit_subcatalog_facets` plugin is enabled in order to have the Region facet updated and aligned to the Organization's setting in *region* fields)
+
+        paster --plugin=ckan search-index rebuild --config=/etc/ckan/default/production.ini
 
 ### Dataset form
 
@@ -217,7 +224,7 @@ The ckanext-dcatapit extension provides also a CSW harvester built on the **ckan
 
     {
        "dcatapit_config":{
-          "dataset_themes":"OP_DATPRO",
+          "dataset_themes":[{"theme": "OP_DATPRO", "subthemes": []}],
           "dataset_places":"ITA_BZO",
           "dataset_languages":"{ITA,DEU}",
           "frequency":"UNKNOWN",
